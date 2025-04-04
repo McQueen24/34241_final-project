@@ -16,7 +16,7 @@ OUTPUT_SIZE_PATH="$OUTPUT_DIR/$OUTPUT_SIZE_FILE"
 echo "Frame Number, File Size (bytes), File Size (kB)" > "$OUTPUT_SIZE_PATH"  # Header for the output file
 
 # Run Python script to get frame indices
-frame_indices=$(python3 extract_frames.py)
+frame_indices=$(python3 extract_frames.py from_bash)
 echo -e "Frame indices:\n$frame_indices"
 
 # Loop to extract frames 0 to 4

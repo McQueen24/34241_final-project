@@ -19,8 +19,8 @@ ti_values = data["ti"]
 
 # Set a threshold
 cumsum = 0
-threshold = 80
-max_ti = 25
+threshold = 50
+max_ti = 10
 
 # Create list to store frame indices
 frame_indices = []

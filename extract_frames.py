@@ -48,4 +48,7 @@ for index, value in enumerate(ti_values):
 
 if from_bash == 0:
     print(f"Frames noted: {frame_indices}")
+    print(f"# of frames found: {len(frame_indices)}")
+    print(f"# of original frames: {len(ti_values)} (everything is zero-indexed)")
+    print(f"# of frames removed: {len(ti_values)-len(frame_indices)}")
 exit()

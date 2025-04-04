@@ -1,0 +1,60 @@
+Compile and build ffmpeg from tar 
+(YUView version 2.13)
+VERSION 4.4.5 WORKS (not bitstream analysis)
+VERSION 5.1.6 WORKS(not bitstream analysis)
+VERSION 6.1.2 DOESNT WORK (too new=
+VERSION 7.1.1 DOESNT WORK
+
+HOW TO:
+https://ffmpeg.org/download.html#repositories
+tar -xvf ffmpeg-7.1.1.tar.xz
+cd ffmpeg-7.1.1
+./configure --enable-shared --disable-static --enable-gpl --enable-libx264 --enable-libx265
+make -j$(nproc)
+sudo make install
+sudo ldconfig
+ffmpeg -version
+
+find /usr/local/lib /usr/lib -name "libav*.so*" -o -name "libsw*.so*"
+sudo find / -name "libavcodec.so*" 2>/dev/null
+
+Compile and build YUView:
+git clone --recursive https://github.com/IENT/YUView.git
+cd ~/YUView
+git tag
+git checkout v.2.12
+git submodule update --init --recursive
+(sudo apt update
+sudo apt install qtbase5-dev qtchooser qt5-qmake qttools5-dev-tools \
+                 qtmultimedia5-dev libavcodec-dev libavformat-dev libavutil-dev \
+                 libavdevice-dev libavfilter-dev libswscale-dev libswresample-dev
+)
+cd build
+qmake ../YUView.pro
+make -j$(nproc)
+sudo make install
+/usr/local/bin/YUView 
+
+
+NOTER:
+På YUView v.2.12 virker .so fra ffmpeg 4.4.5 
+På YUView v.2.13 virker .so fra ffmpeg 5.1.6 (bortset fra bitstream analysis)
+På YUView v.2.14 virker .so fra ffmpeg 6.1.2
+
+
+Compile Python and siti-tools and create virtual env:
+cd ~/
+cd /tmp
+curl -O https://www.python.org/ftp/python/3.11.8/Python-3.11.8.tgz
+tar -xf Python-3.11.8.tgz
+cd Python-3.11.8
+./configure --enable-optimizations
+make -j$(nproc)
+sudo make altinstall
+
+(create (or just activate) venv called siti-venv-py311)
+python3.11 --version
+python3.11 -m venv ~/siti-venv-py311
+source ~/siti-venv-py311/bin/activate
+pip install --upgrade pip
+pip install git+https://github.com/VQEG/siti-tools

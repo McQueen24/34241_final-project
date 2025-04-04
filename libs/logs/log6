@@ -1,0 +1,25 @@
+Checking versions avutil 57, swresample 4, avcodec 59, avformat 59
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavutil.so.59.39.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libswresample.so.5.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavcodec.so.59 failed
+Unloading all loaded libraries
+Checking versions avutil 56, swresample 3, avcodec 58, avformat 58
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavutil.so.59.39.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libswresample.so.5.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavcodec.so.59 failed
+Unloading all loaded libraries
+Checking versions avutil 55, swresample 2, avcodec 57, avformat 57
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavutil.so.59.39.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libswresample.so.5.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavcodec.so.59 failed
+Unloading all loaded libraries
+Checking versions avutil 54, swresample 1, avcodec 56, avformat 56
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavutil.so.59.39.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libswresample.so.5.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/4/libavcodec.so.59 failed
+Unloading all loaded libraries
+Unloading all loaded libraries

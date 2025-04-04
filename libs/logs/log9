@@ -1,0 +1,65 @@
+Checking versions avutil 58, swresample 4, avcodec 60, avformat 60
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavutil.so.59.8.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libswresample.so.5.1.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavcodec.so.61.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavformat.so.61.1.100 succeded
+Binding functions successfull
+Testing versions of the library. Currently looking for:
+avutil: 58.xx.xx
+swresample: 4.xx.xx
+avcodec: 60.xx.xx
+avformat: 60.xx.xx
+The openend avcodec returned a different major version (61) than we are looking for (60).
+Checking versions avutil 57, swresample 4, avcodec 59, avformat 59
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavutil.so.59.8.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libswresample.so.5.1.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavcodec.so.61.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavformat.so.61.1.100 succeded
+Binding functions successfull
+Testing versions of the library. Currently looking for:
+avutil: 57.xx.xx
+swresample: 4.xx.xx
+avcodec: 59.xx.xx
+avformat: 59.xx.xx
+The openend avcodec returned a different major version (61) than we are looking for (59).
+Checking versions avutil 56, swresample 3, avcodec 58, avformat 58
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavutil.so.59.8.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libswresample.so.5.1.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavcodec.so.61.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavformat.so.61.1.100 succeded
+Binding functions successfull
+Testing versions of the library. Currently looking for:
+avutil: 56.xx.xx
+swresample: 3.xx.xx
+avcodec: 58.xx.xx
+avformat: 58.xx.xx
+The openend avcodec returned a different major version (61) than we are looking for (58).
+Checking versions avutil 55, swresample 2, avcodec 57, avformat 57
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavutil.so.59.8.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libswresample.so.5.1.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavcodec.so.61.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavformat.so.61.1.100 succeded
+Binding functions successfull
+Testing versions of the library. Currently looking for:
+avutil: 55.xx.xx
+swresample: 2.xx.xx
+avcodec: 57.xx.xx
+avformat: 57.xx.xx
+The openend avcodec returned a different major version (61) than we are looking for (57).
+Checking versions avutil 54, swresample 1, avcodec 56, avformat 56
+Unloading all loaded libraries
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavutil.so.59.8.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libswresample.so.5.1.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavcodec.so.61.3.100 succeded
+Loading library /home/rasmus/Downloads/34241 Digital video technology/Project/libs/ffmpeg 7.0.2 so's/libavformat.so.61.1.100 succeded
+Binding functions successfull
+Testing versions of the library. Currently looking for:
+avutil: 54.xx.xx
+swresample: 1.xx.xx
+avcodec: 56.xx.xx
+avformat: 56.xx.xx
+The openend avcodec returned a different major version (61) than we are looking for (56).

@@ -3,12 +3,61 @@
 start_time=$(date +%s)
 
 # Define input and output file 
-INPUT_FILE="still_walking_still.mp4"  # Use the desired input video file
-INPUT_DIR="sample_data"
+INPUT_FILE="video__2025-04-24__15-12-25__CAMB.h265"  # Use the desired input video file
+ORIGINAL_INPUT_FILE="$INPUT_FILE"
+INPUT_DIR="sample_data/Horizontal_Pattern"
 INPUT_PATH="$INPUT_DIR/$INPUT_FILE"
+RESOLUTION="1920x1200"
 
-OUTPUT_PATH="output_dir"
-mkdir -p "$OUTPUT_PATH" # Ensure the output directory exists
+# Define a directory to store JSON files
+JSON_OUTPUT_DIR="output_dir/json_output_dir"
+mkdir -p "$JSON_OUTPUT_DIR"  # Ensure JSON output directory exists
+
+# If the input is a .h265 file, check for existing .mp4 conversion
+if [[ "$INPUT_FILE" == *.h265 ]]; then
+    CONVERTED_FILE="${INPUT_FILE%.h265}.mp4"
+    CONVERTED_PATH="$INPUT_DIR/$CONVERTED_FILE"
+
+    if [[ -f "$CONVERTED_PATH" ]]; then
+        echo "MP4 version already exists: $CONVERTED_FILE"
+    else
+        echo "Converting $INPUT_FILE to $CONVERTED_FILE..."
+        ffmpeg -y -i "$INPUT_PATH" -c:v libx265 "$CONVERTED_PATH"
+    fi
+
+    # Update input path to the converted file
+    INPUT_FILE="$CONVERTED_FILE"
+    INPUT_PATH="$CONVERTED_PATH"
+fi
+
+# Check if the JSON file for the input file exists
+JSON_FILE="sitiCR${ORIGINAL_INPUT_FILE}.json"
+JSON_PATH="$JSON_OUTPUT_DIR/$JSON_FILE"
+echo "Looking for JSON path: $JSON_PATH"  # Print the full path of the JSON file
+
+if [[ ! -f "$JSON_PATH" ]]; then
+    echo "JSON file not found in $JSON_PATH. Running siti-tools..."
+    
+    # Run the second script to generate the JSON file
+    ./export_SITI_frame_by_frame.sh "$INPUT_PATH" "$JSON_OUTPUT_DIR" "$RESOLUTION"  # Pass the input file and output directory to the second script
+    
+    # Pause and wait for user to press Enter
+    echo "Press Enter to continue..."
+    read
+else
+    echo "JSON file found in $JSON_OUTPUT_DIR for $INPUT_FILE. Skipping using siti-tools."
+fi
+
+
+OUTPUT_BASE_DIR="output_dir"
+mkdir -p "$OUTPUT_BASE_DIR" # Ensure the output directory exists
+
+# Generate timestamp and subfolder
+TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
+VIDEO_BASENAME="${INPUT_FILE%.*}"
+OUTPUT_SUBDIR="${VIDEO_BASENAME}__${TIMESTAMP}"
+OUTPUT_PATH="${OUTPUT_BASE_DIR}/${OUTPUT_SUBDIR}"
+mkdir -p "$OUTPUT_PATH/picture_output"
 
 # Output text file for frame sizes
 OUTPUT_FILE_SIZE="frame_sizes.txt"
@@ -20,17 +69,32 @@ OUTPUT_PATH_PICS="$OUTPUT_PATH/picture_output"
 find "$OUTPUT_PATH_PICS" -mindepth 1 -delete
 
 # Run Python script to get frame indices
-frame_indices=$(python3 extract_frames.py from_bash)
+frame_indices=$(python3 extract_frames.py from_bash "$INPUT_FILE")
 echo -e "Frame indices:\n$frame_indices"
+
+# Extract all frames
+ffmpeg -i "$INPUT_PATH" -qscale:v 2 "$OUTPUT_PATH_PICS/frame%04d.jpg"
+
+# Convert frame_indices into a bash associative array (whitelist)
+declare -A keep_frames
+for FRAME_NO in $frame_indices; do
+    FRAME_NO_Padded=$(printf "%04d" $FRAME_NO)
+    keep_frames["frame${FRAME_NO_Padded}.jpg"]=1
+done
+
+# Iterate over all extracted frames and delete those not in keep list
+for file in "$OUTPUT_PATH_PICS"/*.jpg; do
+    filename=$(basename "$file")
+    if [[ -z "${keep_frames[$filename]}" ]]; then
+        rm "$file"
+    fi
+done
 
 # Loop to extract frames 0 to 4
 for FRAME_NO in $frame_indices; do
-    FRAME_NO_Padded=$(printf "%03d" $FRAME_NO)
+    FRAME_NO_Padded=$(printf "%04d" $FRAME_NO)
     OUTPUT_FILE="frame${FRAME_NO_Padded}.jpg"  # Output image file name
     OUTPUT_FILE_PICS="${OUTPUT_PATH_PICS}/${OUTPUT_FILE}"
-
-    # Extract the specified frame
-    ffmpeg -i "$INPUT_PATH" -vf "select=eq(n\,${FRAME_NO})" -frames:v 1 -q:v 31 -loglevel quiet -y "$OUTPUT_FILE_PICS"    
 
     # Check if the extraction was successful
     if [ $? -eq 0 ]; then
@@ -49,7 +113,7 @@ for FRAME_NO in $frame_indices; do
     fi
 done
 
-ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS/*.jpg" -c:v libx265 -r 24 $OUTPUT_PATH/recreated_video.mp4
+ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS/*.jpg" -c:v libx265 -r 24 $OUTPUT_PATH/recreated_video_"$INPUT_FILE".mp4
 
 # Capture the end time
 end_time=$(date +%s)

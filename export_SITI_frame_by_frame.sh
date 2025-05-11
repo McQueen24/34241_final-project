@@ -1,35 +1,38 @@
 #!/bin/bash
+# Capture start time
+start_time=$(date +%s)
 
-OUTPUT_DIR="output_dir"
-mkdir -p "$OUTPUT_DIR"  # Ensure output directory exists
+# Get input file and output directory from arguments
+INPUT_PATH="$1"
+JSON_OUTPUT_DIR="$2"
+RESOLUTION="$3"
+
+OUTPUT_FILE="${JSON_OUTPUT_DIR}/sitiCR$(basename "$INPUT_PATH").json"
 
 # Declare an associative array with filenames as keys and resolutions as values
-declare -A INPUT_FILES=(
-    ["still_walking_still.h265"]="1920x1200"
-    #["riverbed540p.yuv"]="960x540"
+#declare -A INPUT_FILES=(
+#    ["other_sample_data/chair_test.h265"]="1920x1200"
+    #["Horizontal_Pattern/video__2025-04-24__15-12-25__CAMB.h265"]="1920x1200"
     #["rollercoaster.yuv"]="1024x540"
     #["sintel1024p.yuv"]="1024x436"
-)
+#)
+
+NUMBER_OF_FRAMES="0" # if < 2, all frames will be used
 
 # Define the input directory
-INPUT_DIR="sample_data"
+#INPUT_DIR="sample_data"
 
 source ~/siti-venv-py311/bin/activate
 
-# Loop through each file and process it with ffmpeg
-for INPUT_FILE in "${!INPUT_FILES[@]}"; do
-    INPUT_PATH="$INPUT_DIR/$INPUT_FILE"
-    OUTPUT_FILE="${OUTPUT_DIR}/sitiCR${INPUT_FILE}.json"
-    RESOLUTION="${INPUT_FILES[$INPUT_FILE]}"
+# Process the video file and generate JSON output
+echo "Processing $INPUT_PATH with resolution $RESOLUTION..."
+siti-tools -r full -n "$NUMBER_OF_FRAMES" "$INPUT_PATH" > "$OUTPUT_FILE"
 
-    echo "Processing $INPUT_FILE with resolution $RESOLUTION..."
-    
-    source ~/siti-venv-py311/bin/activate
-    siti-tools -r full "$INPUT_PATH" > "$OUTPUT_FILE"
-    #fmpeg -s 1920x1200 -pix_fmt yuv420p -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> output.txt
+echo "Generated JSON file: $OUTPUT_FILE"
 
+# Capture the end time
+end_time=$(date +%s)
 
-    #ffmpeg -s "$RESOLUTION" -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> "$OUTPUT_FILE"
-done
-
-echo "All videos processed."
+# Calculate and print the total execution time
+total_time=$((end_time - start_time))
+echo "Total time taken: $total_time seconds"

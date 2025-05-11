@@ -2,7 +2,7 @@ Compile and build ffmpeg from tar
 (YUView version 2.13)
 VERSION 4.4.5 WORKS (not bitstream analysis)
 VERSION 5.1.6 WORKS(not bitstream analysis)
-VERSION 6.1.2 DOESNT WORK (too new=
+VERSION 6.1.2 DOESNT WORK (too new)
 VERSION 7.1.1 DOESNT WORK
 
 HOW TO:

@@ -5,14 +5,14 @@ mkdir -p "$OUTPUT_DIR"  # Ensure output directory exists
 
 # Declare an associative array with filenames as keys and resolutions as values
 declare -A INPUT_FILES=(
-    ["chair_test.h265"]="1920x1200"
-    #["riverbed540p.yuv"]="960x540"
+    #["chair_test.h265"]="1920x1200"
+    ["video__2025-04-24__15-12-25__CAMB.h265"]="1920x1200"
     #["rollercoaster.yuv"]="1024x540"
     #["sintel1024p.yuv"]="1024x436"
 )
 
 # Define the input directory
-INPUT_DIR="sample_data"
+INPUT_DIR="sample_data/Horizontal_Pattern"
 
 # Loop through each file and process it with ffmpeg
 for INPUT_FILE in "${!INPUT_FILES[@]}"; do
@@ -21,7 +21,11 @@ for INPUT_FILE in "${!INPUT_FILES[@]}"; do
     RESOLUTION="${INPUT_FILES[$INPUT_FILE]}"
 
     echo "Processing $INPUT_FILE with resolution $RESOLUTION..."
-    ffmpeg -s 1920x1200 -pix_fmt yuv420p -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> output.txt
+    if [[ "$INPUT_FILE" == *.yuv ]]; then
+        ffmpeg -s "$RESOLUTION" -pix_fmt yuv420p -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> "$OUTPUT_FILE"
+    else
+        ffmpeg -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> "$OUTPUT_FILE"
+    fi
 
 
     #ffmpeg -s "$RESOLUTION" -i "$INPUT_PATH" -vf siti=print_summary=1 -f null - 2> "$OUTPUT_FILE"

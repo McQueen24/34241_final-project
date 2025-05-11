@@ -1,54 +1,57 @@
 import json
 import sys
 import os
+import pathlib
 
-from_bash = 0
+from_bash = False
+
 if __name__ == "__main__":
-    # Set an environment variable when called from the bash script
-    if len(sys.argv) > 1 and sys.argv[1] == "from_bash":
+    if len(sys.argv) >= 2 and sys.argv[1] == "from_bash":
         os.environ["FROM_BASH"] = "1"
-        from_bash = 1
+        from_bash = True
 
+    if len(sys.argv) >= 3:
+        input_file = sys.argv[2]
+    else:
+        print("Error: No input path provided.")
+        sys.exit(1)
+
+# Derive the .json path from the video input
+basename = pathlib.Path(input_file).stem  # e.g., "video__2025-04-24__15-12-25__CAMB"
+json_path = f"output_dir/json_output_dir/sitiCR{basename}.h265.json"
 
 # Load the JSON file
-with open("output_dir/sitiCRstill_walking_still.h265.json", "r") as file:
-    data = json.load(file)
+try:
+    with open(json_path, "r") as file:
+        data = json.load(file)
+except FileNotFoundError:
+    print(f"Error: Could not find JSON file at '{json_path}'")
+    sys.exit(1)
 
 # Extract the "ti" values
 ti_values = data["ti"]
 
-# Set a threshold
+# Processing logic
 cumsum = 0
 threshold = 50
 max_ti = 10
-
-# Create list to store frame indices
 frame_indices = []
 
-# Iterate through the "ti" values
-if from_bash == 0:
+if not from_bash:
     print(f"Frames (0-indexed) where cumulative 'ti' exceeds {threshold} or ti exceeds {max_ti}:")
 
 for index, value in enumerate(ti_values):
     cumsum += value
-    if cumsum > threshold:
+    if cumsum > threshold or value > max_ti:
         if from_bash:
             print(index)
         else:
-            print(f"Frame {index}: Cumulative ti = {cumsum}")
-        frame_indices.append(index)
-        cumsum = 0  # Reset the cumulative sum after printing
-    elif value > max_ti:
-        if from_bash:
-            print(index)
-        else:
-            print(f"Frame {index} value: {value}")
+            print(f"Frame {index}: Cumulative ti = {cumsum}, Value = {value}")
         frame_indices.append(index)
         cumsum = 0
 
-if from_bash == 0:
+if not from_bash:
     print(f"Frames noted: {frame_indices}")
     print(f"# of frames found: {len(frame_indices)}")
-    print(f"# of original frames: {len(ti_values)} (everything is zero-indexed)")
+    print(f"# of original frames: {len(ti_values)}")
     print(f"# of frames removed: {len(ti_values)-len(frame_indices)}")
-exit()

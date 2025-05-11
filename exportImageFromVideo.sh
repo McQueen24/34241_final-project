@@ -4,7 +4,7 @@ start_time=$(date +%s)
 
 # Define input and output file 
 INPUT_FILE="video__2025-04-24__15-12-25__CAMB.h265"  # Use the desired input video file
-ORIGINAL_INPUT_FILE="$INPUT_FILE"
+#ORIGINAL_INPUT_FILE="$INPUT_FILE"
 INPUT_DIR="sample_data/Horizontal_Pattern"
 INPUT_PATH="$INPUT_DIR/$INPUT_FILE"
 RESOLUTION="1920x1200"
@@ -25,13 +25,13 @@ if [[ "$INPUT_FILE" == *.h265 ]]; then
         ffmpeg -y -i "$INPUT_PATH" -c:v libx265 "$CONVERTED_PATH"
     fi
 
-    # Update input path to the converted file
+    # Update input path to the converted file, but we will still use ORIGINAL_INPUT_FILE for JSON
     INPUT_FILE="$CONVERTED_FILE"
     INPUT_PATH="$CONVERTED_PATH"
 fi
 
-# Check if the JSON file for the input file exists
-JSON_FILE="sitiCR${ORIGINAL_INPUT_FILE}.json"
+# **Here**: Use the original filename for the JSON output (without .h265 or .mp4)
+JSON_FILE="sitiCR${INPUT_FILE}.json"  # Remove extension from the filename
 JSON_PATH="$JSON_OUTPUT_DIR/$JSON_FILE"
 echo "Looking for JSON path: $JSON_PATH"  # Print the full path of the JSON file
 
@@ -113,7 +113,7 @@ for FRAME_NO in $frame_indices; do
     fi
 done
 
-ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS/*.jpg" -c:v libx265 -r 24 $OUTPUT_PATH/recreated_video_"$INPUT_FILE".mp4
+ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS/*.jpg" -c:v libx265 -r 24 $OUTPUT_PATH/recreated_video_"$INPUT_FILE"
 
 # Capture the end time
 end_time=$(date +%s)

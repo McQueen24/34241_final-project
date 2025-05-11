@@ -7,21 +7,15 @@ INPUT_PATH="$1"
 JSON_OUTPUT_DIR="$2"
 RESOLUTION="$3"
 
-OUTPUT_FILE="${JSON_OUTPUT_DIR}/sitiCR$(basename "$INPUT_PATH").json"
+# Correct JSON file naming
+ORIGINAL_INPUT_FILE=$(basename "$INPUT_PATH")
+JSON_FILE="sitiCR${ORIGINAL_INPUT_FILE}.json"
+OUTPUT_FILE="${JSON_OUTPUT_DIR}/${JSON_FILE}"
 
-# Declare an associative array with filenames as keys and resolutions as values
-#declare -A INPUT_FILES=(
-#    ["other_sample_data/chair_test.h265"]="1920x1200"
-    #["Horizontal_Pattern/video__2025-04-24__15-12-25__CAMB.h265"]="1920x1200"
-    #["rollercoaster.yuv"]="1024x540"
-    #["sintel1024p.yuv"]="1024x436"
-#)
-
+# Define number of frames
 NUMBER_OF_FRAMES="0" # if < 2, all frames will be used
 
-# Define the input directory
-#INPUT_DIR="sample_data"
-
+# Activate the virtual environment
 source ~/siti-venv-py311/bin/activate
 
 # Process the video file and generate JSON output

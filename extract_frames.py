@@ -16,10 +16,10 @@ if __name__ == "__main__":
         print("Error: No input path provided.")
         sys.exit(1)
 
-# Derive the .json path from the video input
-basename = pathlib.Path(input_file).stem  # e.g., "video__2025-04-24__15-12-25__CAMB"
-json_path = f"output_dir/json_output_dir/sitiCR{basename}.h265.json"
-
+# Define jsoin file and path
+input_file = sys.argv[2]
+json_file = f"sitiCR{input_file}.json"
+json_path = os.path.join("output_dir", "json_output_dir", json_file)
 # Load the JSON file
 try:
     with open(json_path, "r") as file:
@@ -34,7 +34,7 @@ ti_values = data["ti"]
 # Processing logic
 cumsum = 0
 threshold = 50
-max_ti = 10
+max_ti = 5
 frame_indices = []
 
 if not from_bash:

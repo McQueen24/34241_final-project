@@ -4,4 +4,6 @@
 *.mkv
 *.jpg
 sample_data/
-output_dir/algo*/
+output_dir/algo1/
+output_dir/algo2/
+

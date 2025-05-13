@@ -47,7 +47,7 @@ fi
 
 
 
-OUTPUT_BASE_DIR="output_dir"
+OUTPUT_BASE_DIR="output_dir/algo2"
 mkdir -p "$OUTPUT_BASE_DIR" # Ensure the output directory exists
 
 # Generate timestamp and subfolder

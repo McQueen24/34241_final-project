@@ -32,9 +32,9 @@ except FileNotFoundError:
 ti_values = data["ti"]
 
 # Processing logic
-cumsum = 0
-threshold = 50
-max_ti = 5
+cumsum = 0 # Init to zero
+threshold = 60
+max_ti = 25
 frame_indices = []
 
 if not from_bash:

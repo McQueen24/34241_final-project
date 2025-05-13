@@ -1,11 +1,14 @@
 #!/bin/bash
+# This algoritm converts .h265 video to mp4 and generates images
+# based on python script using siti-tools.
+# Also reconstructs to new recreated video (for visual comparison)
 # Capture start time
 start_time=$(date +%s)
 
 # Define input and output file 
-INPUT_FILE="video__2025-04-24__15-12-25__CAMB.h265"  # Use the desired input video file
+INPUT_FILE="video__2025-04-24__15-14-57__CAMC.h265"  # Use the desired input video file
 #ORIGINAL_INPUT_FILE="$INPUT_FILE"
-INPUT_DIR="sample_data/Horizontal_Pattern"
+INPUT_DIR="sample_data/Lawnmower_Pattern"
 INPUT_PATH="$INPUT_DIR/$INPUT_FILE"
 RESOLUTION="1920x1200"
 
@@ -42,8 +45,8 @@ if [[ ! -f "$JSON_PATH" ]]; then
     ./export_SITI_frame_by_frame.sh "$INPUT_PATH" "$JSON_OUTPUT_DIR" "$RESOLUTION"  # Pass the input file and output directory to the second script
     
     # Pause and wait for user to press Enter
-    echo "Press Enter to continue..."
-    read
+    #echo "Press Enter to continue..."
+    #read
 else
     echo "JSON file found in $JSON_OUTPUT_DIR for $INPUT_FILE. Skipping using siti-tools."
 fi
@@ -55,7 +58,7 @@ mkdir -p "$OUTPUT_BASE_DIR" # Ensure the output directory exists
 # Generate timestamp and subfolder
 TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
 VIDEO_BASENAME="${INPUT_FILE%.*}"
-OUTPUT_SUBDIR="${VIDEO_BASENAME}__${TIMESTAMP}"
+OUTPUT_SUBDIR="algo1_${TIMESTAMP}__${VIDEO_BASENAME}"
 OUTPUT_PATH="${OUTPUT_BASE_DIR}/${OUTPUT_SUBDIR}"
 mkdir -p "$OUTPUT_PATH/picture_output"
 
@@ -104,7 +107,7 @@ for FRAME_NO in $frame_indices; do
         # Convert file size to kilobytes (KB)
         filesize_kb=$(echo "scale=2; $filesize / 1024" | bc)
         
-        echo "The size of the extracted image '$OUTPUT_FILE_PICS' is: $filesize bytes ($filesize_kb KB)"
+        #echo "The size of the extracted image '$OUTPUT_FILE_PICS' is: $filesize bytes ($filesize_kb KB)"
         
         # Print frame number, file size in bytes, and file size in KB to the text file
         echo "$FRAME_NO, $filesize, $filesize_kb" >> "$OUTPUT_PATH_SIZE"
@@ -114,6 +117,33 @@ for FRAME_NO in $frame_indices; do
 done
 
 ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS/*.jpg" -c:v libx265 -r 24 $OUTPUT_PATH/recreated_video_"$INPUT_FILE"
+
+
+echo -e "\n--- Comparison between original and recreated video ---"
+
+ORIGINAL_FILE="$INPUT_DIR/$INPUT_FILE"
+RECREATED_FILE="$OUTPUT_PATH/recreated_video_$INPUT_FILE"
+
+# File sizes
+original_size=$(stat -c%s "$ORIGINAL_FILE")
+recreated_size=$(stat -c%s "$RECREATED_FILE")
+original_size_kb=$(echo "scale=2; $original_size / 1024" | bc)
+recreated_size_kb=$(echo "scale=2; $recreated_size / 1024" | bc)
+
+echo "Original video size   : $original_size bytes ($original_size_kb KB)"
+echo "Recreated video size  : $recreated_size bytes ($recreated_size_kb KB)"
+
+# Durations
+original_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$ORIGINAL_FILE")
+recreated_duration=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$RECREATED_FILE")
+
+# Round durations
+original_duration_sec=$(printf "%.2f" "$original_duration")
+recreated_duration_sec=$(printf "%.2f" "$recreated_duration")
+
+echo "Original video duration : $original_duration_sec seconds"
+echo "Recreated video duration: $recreated_duration_sec seconds"
+
 
 # Capture the end time
 end_time=$(date +%s)

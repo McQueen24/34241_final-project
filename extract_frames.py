@@ -33,8 +33,10 @@ ti_values = data["ti"]
 
 # Processing logic
 cumsum = 0 # Init to zero
-threshold = 60
-max_ti = 25
+max_ti = float(sys.argv[3])
+threshold = float(sys.argv[4])
+#threshold = 60
+#max_ti = 25
 frame_indices = []
 
 if not from_bash:

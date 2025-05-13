@@ -68,8 +68,10 @@ OUTPUT_PATH_PICS_L="$OUTPUT_PATH/picture_output_L"
 OUTPUT_PATH_PICS_R="$OUTPUT_PATH/picture_output_R"
 
 # Run Python script to get frame indices
-frame_indices_L=$(python3 extract_frames.py from_bash "$INPUT_FILE_L")
-frame_indices_R=$(python3 extract_frames.py from_bash "$INPUT_FILE_R")
+max_ti="25"
+threshold="60"
+frame_indices_L=$(python3 extract_frames.py from_bash "$INPUT_FILE_L" "$max_ti" "$threshold")
+frame_indices_R=$(python3 extract_frames.py from_bash "$INPUT_FILE_R" "$max_ti" "$threshold")
 
 echo -e "Frame indices(L):\n$frame_indices_L"
 echo -e "Frame indices(R):\n$frame_indices_R"

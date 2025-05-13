@@ -138,8 +138,8 @@ for FRAME_NO in $frame_indices_L $frame_indices_R; do
 done
 
 # Recreate L/R videos
-ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS_L/*.jpg" -c:v libx265 -r 24 "$OUTPUT_PATH/recreated_video_L_$INPUT_FILE_L"
-ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS_R/*.jpg" -c:v libx265 -r 24 "$OUTPUT_PATH/recreated_video_R_$INPUT_FILE_R"
+ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS_L/*.jpg" -c:v libx265 -r 10 "$OUTPUT_PATH/recreated_video_L_$INPUT_FILE_L"
+ffmpeg -y -pattern_type glob -i "$OUTPUT_PATH_PICS_R/*.jpg" -c:v libx265 -r 10 "$OUTPUT_PATH/recreated_video_R_$INPUT_FILE_R"
 
 
 # Comparison between original and recreated videos for both channels

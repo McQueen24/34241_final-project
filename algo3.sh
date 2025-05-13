@@ -6,9 +6,27 @@
 # that is not used. Eg. frame 10 is kept, but the 
 # relation between frame 10 and 11 does not meet conditions.
 # Therefore SITI between frame 10 and 12 is calculated
-threshold=21
+
+# Define input and output file 
+INPUT_FILE_L="video__2025-04-24__15-14-57__CAMB.h265"
+INPUT_DIR="sample_data/Lawnmower_Pattern"
+INPUT_PATH="$INPUT_DIR/$INPUT_FILE"
+RESOLUTION="1920x1200"
+
+OUTPUT_PATH_PICS="${INPUT_DIR}/${INPUT_FILE}_frames"
+mkdir -p "$OUTPUT_PATH_PICS"
+
+# Check if frames already exist
+if ls "$OUTPUT_PATH_PICS"/frame*.jpg 1> /dev/null 2>&1; then
+  echo "✅ Frames already extracted in '$OUTPUT_PATH_PICS'. Skipping extraction."
+else
+  echo "🎞️ Extracting frames from video..."
+  ffmpeg -i "$INPUT_PATH" -qscale:v 2 "$OUTPUT_PATH_PICS/frame%04d.jpg"
+fi
+
+threshold=26
 start_frame=1
-frame_dir="picture_output_L"
+frame_dir="$OUTPUT_PATH_PICS"
 frame_pattern="frame%04d.jpg"
 
 OUTPUT_BASE_DIR="output_dir/algo3"
@@ -74,4 +92,4 @@ done
 
 
 echo "Generating recreated video..."
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR/*.jpg" -c:v libx265 -r 24 "$output_dir/recreated_video_threshold=${threshold}.h265"
+ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}.h265"

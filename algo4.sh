@@ -37,8 +37,8 @@ get_avg_ti() {
 }
 
 # Define input and output file 
-INPUT_FILE_L="CAMB.h265"
-INPUT_FILE_R="CAMC.h265"
+INPUT_FILE_L="CAMB_3s.h265"
+INPUT_FILE_R="CAMC_3s.h265"
 INPUT_DIR="sample_data/Lawnmower_Pattern"
 INPUT_PATH_L="$INPUT_DIR/$INPUT_FILE_L"
 INPUT_PATH_R="$INPUT_DIR/$INPUT_FILE_R"
@@ -75,13 +75,13 @@ echo "Average TI for Right is: $avg_ti_R"
 
 threshold_L="$avg_ti_L"
 threshold_R="$avg_ti_R"
-threshold_multiplier="0.67"
+threshold_multiplier="0.60"
 threshold=$(echo "scale=4; (($avg_ti_L + $avg_ti_R) / 2) * $threshold_multiplier" | bc) # scale is decimal places for the threshold
 echo "📏 Combined average threshold after multiplier: $threshold"
 #read -p "Press enter to continue"
 
 # Check if cumulative TI exceeds x times threshold
-maxcum_multiplier="5"
+maxcum_multiplier="2"
 maxcum=$(echo "$threshold * $maxcum_multiplier" | bc)
 count_normal_threshold=0
 count_normal_threshold_L=0
@@ -224,7 +224,7 @@ rm -rf "$temp_base_L"
 rm -rf "$temp_base_R"
 
 echo "Generating recreated video..."
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$PICTURE_OUTPUT_SUBDIR_MAIN/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.mp4"
+#ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$PICTURE_OUTPUT_SUBDIR_MAIN/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.mp4"
 #ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_R"'/*.jpg' -c:v libx265 -r 24 "$PICTURE_OUTPUT_SUBDIR_MAIN/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_R.mp4"
 
 # Count original and recreated frames

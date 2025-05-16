@@ -7,6 +7,17 @@
 # relation between frame 10 and 11 does not meet conditions.
 # Therefore SITI between frame 10 and 12 is calculated
 
+QUIET=0
+
+# Parse arguments
+for arg in "$@"; do
+  case "$arg" in
+    -quiet)
+      QUIET=1
+      ;;
+  esac
+done
+
 # Define functions here:
 get_avg_ti() {
   local input_path="$1"
@@ -26,8 +37,8 @@ get_avg_ti() {
 }
 
 # Define input and output file 
-INPUT_FILE_L="video__2025-04-24__15-14-57__CAMB.h265"
-INPUT_FILE_R="video__2025-04-24__15-14-57__CAMC.h265"
+INPUT_FILE_L="video__2025-04-24__15-14-57__CAMB_3s.h265"
+INPUT_FILE_R="video__2025-04-24__15-14-57__CAMC_3s.h265"
 INPUT_DIR="sample_data/Lawnmower_Pattern"
 INPUT_PATH_L="$INPUT_DIR/$INPUT_FILE_L"
 INPUT_PATH_R="$INPUT_DIR/$INPUT_FILE_R"
@@ -64,16 +75,20 @@ echo "Average TI for Right is: $avg_ti_R"
 
 threshold_L="$avg_ti_L"
 threshold_R="$avg_ti_R"
-threshold_multiplier="0.60"
-threshold=$(echo "scale=4; (($avg_ti_L + $avg_ti_R) / 2) * $threshold_multiplier" | bc)
-echo "📏 Combined average threshold: $threshold"
+threshold_multiplier="0.67"
+threshold=$(echo "scale=4; (($avg_ti_L + $avg_ti_R) / 2) * $threshold_multiplier" | bc) # scale is decimal places for the threshold
+echo "📏 Combined average threshold after multiplier: $threshold"
 #read -p "Press enter to continue"
 
 # Check if cumulative TI exceeds x times threshold
-maxcum_multiplier="6"
+maxcum_multiplier="3"
 maxcum=$(echo "$threshold * $maxcum_multiplier" | bc)
 count_normal_threshold=0
+count_normal_threshold_L=0
+count_normal_threshold_R=0
 count_cumsum_threshold=0
+count_cumsum_threshold_L=0
+count_cumsum_threshold_R=0
 start_frame=1
 frame_dir_L="$OUTPUT_PATH_PICS_L"
 frame_dir_R="$OUTPUT_PATH_PICS_R"
@@ -87,6 +102,7 @@ TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
 PICTURE_OUTPUT_SUBDIR_MAIN="${OUTPUT_BASE_DIR}/${INPUT_FILE_L}__threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold"
 PICTURE_OUTPUT_SUBDIR_L="${PICTURE_OUTPUT_SUBDIR_MAIN}/L"
 PICTURE_OUTPUT_SUBDIR_R="${PICTURE_OUTPUT_SUBDIR_MAIN}/R"
+rm -rf "$PICTURE_OUTPUT_SUBDIR_L" "$PICTURE_OUTPUT_SUBDIR_R"
 mkdir -p "$PICTURE_OUTPUT_SUBDIR_L" "$PICTURE_OUTPUT_SUBDIR_R"
 
 # Get sorted list of frame numbers
@@ -108,7 +124,8 @@ while [ $start_frame -lt ${frame_numbers[$((frame_count - 1))]} ]; do
     frame0_R=$(printf "$frame_dir_R/$frame_pattern" $start_frame)
     frameX_R=$(printf "$frame_dir_R/$frame_pattern" $next_frame)
 
-    echo "Checking frames $start_frame and $next_frame:"
+    [ "$QUIET" -eq 0 ] && echo "Checking frames $start_frame and $next_frame:"
+    #echo "Checking frames $start_frame and $next_frame:"
 
     temp_base_L="$PICTURE_OUTPUT_SUBDIR_L/temp"
     temp_base_R="$PICTURE_OUTPUT_SUBDIR_R/temp"
@@ -138,30 +155,38 @@ while [ $start_frame -lt ${frame_numbers[$((frame_count - 1))]} ]; do
 
     keep=0
     keep_reason=""
-    if (( $(echo "$ti_L >= $threshold" | bc -l) )); then
-      echo "  ✅ Left TI $ti_L >= $threshold"
-      count_normal_threshold=$((count_normal_threshold + 1))
+    # Check normal threshold for Left or Right
+    if (( $(echo "$ti_L >= $threshold" | bc -l) )) || (( $(echo "$ti_R >= $threshold" | bc -l) )); then
+      if (( $(echo "$ti_L >= $threshold" | bc -l) )) && (( $(echo "$ti_R >= $threshold" | bc -l) )); then
+        echo "  ✅ Both ti above max TI! Left TI $ti_R >= $threshold & Left TI $ti_L >= $threshold"
+        count_normal_threshold=$((count_normal_threshold + 1))
+      elif (( $(echo "$ti_L >= $threshold" | bc -l) )); then
+        echo "  ✅ Left TI $ti_L >= $threshold"
+        count_normal_threshold_L=$((count_normal_threshold_L + 1))
+      
+      elif (( $(echo "$ti_R >= $threshold" | bc -l) )); then
+        echo "  ✅ Right TI $ti_R >= $threshold"
+        count_normal_threshold_R=$((count_normal_threshold_R + 1))
+      fi
       keep=1
       keep_reason="normal"
-    fi
-    if (( $(echo "$ti_R >= $threshold" | bc -l) )); then
-      echo "  ✅ Right TI $ti_R >= $threshold"
-      count_normal_threshold=$((count_normal_threshold + 1))
-      keep=1
-      keep_reason="normal"
-    fi
-    if (( $(echo "$cum_ti_L >= $maxcum" | bc -l) )); then
-      echo "  ✅ Cumulative Left TI $cum_ti_L >= $maxcum"
-      count_cumsum_threshold=$((count_cumsum_threshold + 1))
+      # Check cumulative threshold for Left or Right
+    elif (( $(echo "$cum_ti_L >= $maxcum" | bc -l) )) || (( $(echo "$cum_ti_R >= $maxcum" | bc -l) )); then
+      if (( $(echo "$cum_ti_L >= $maxcum" | bc -l) )) && (( $(echo "$cum_ti_R >= $maxcum" | bc -l) )); then
+        echo "  ✅ Both cumsum above threshold! Left TI $cum_ti_L >= $maxcum & Right TI $cum_ti_R >= $maxcum"
+        count_cumsum_threshold=$((count_cumsum_threshold + 1))
+      elif (( $(echo "$cum_ti_L >= $maxcum" | bc -l) )); then
+        echo "  ✅ Cumulative Left TI $cum_ti_L >= $maxcum"
+        count_cumsum_threshold_L=$((count_cumsum_threshold_L + 1))
+      elif (( $(echo "$cum_ti_R >= $maxcum" | bc -l) )); then
+        echo "  ✅ Cumulative Right TI $cum_ti_R >= $maxcum"
+        count_cumsum_threshold_R=$((count_cumsum_threshold_R + 1))
+      fi
       keep=1
       keep_reason="cumsum"
     fi
-    if (( $(echo "$cum_ti_R >= $maxcum" | bc -l) )); then
-      echo "  ✅ Cumulative Right TI $cum_ti_R >= $maxcum"
-      count_cumsum_threshold=$((count_cumsum_threshold + 1))
-      keep=1
-      keep_reason="cumsum"
-    fi
+
+
 
     if [ $keep -eq 1 ]; then
       cp "$frame0_L" "$PICTURE_OUTPUT_SUBDIR_L/$(basename "$frame0_L")"
@@ -175,7 +200,9 @@ while [ $start_frame -lt ${frame_numbers[$((frame_count - 1))]} ]; do
       cum_ti_R=0
       break
     else
-      echo "  ❌ Neither TI passed threshold ($threshold). TI_L=$ti_L, TI_R=$ti_R"
+      echo "  ❌ No thresholds passed, skipping frame $next_frame"
+      echo "     max_ti threshold ($threshold). TI_L=$ti_L, TI_R=$ti_R"
+      echo "     cumsum threshold ($maxcum). cum_ti_L=$cum_ti_L, cum_ti_R=$cum_ti_R"
     fi
 
     next_frame=$((next_frame + 1))
@@ -192,21 +219,29 @@ rm -rf "$temp_base_L"
 rm -rf "$temp_base_R"
 
 echo "Generating recreated video..."
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.mp4"
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_R"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_R.mp4"
+ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$PICTURE_OUTPUT_SUBDIR_MAIN/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.mp4"
+#ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_R"'/*.jpg' -c:v libx265 -r 24 "$PICTURE_OUTPUT_SUBDIR_MAIN/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_R.mp4"
 
 # Count original and recreated frames
 original_frames=$(ls "$frame_dir_L"/frame*.jpg | wc -l)
 recreated_frames_L=$(ls "$PICTURE_OUTPUT_SUBDIR_L"/frame*.jpg | wc -l)
 recreated_frames_R=$(ls "$PICTURE_OUTPUT_SUBDIR_R"/frame*.jpg | wc -l)
 
-echo ""
-echo "=== Summary ==="
-echo "Original number of frames: $original_frames"
-echo "Recreated frames in Left video: $recreated_frames_L"
-echo "Recreated frames in Right video: $recreated_frames_R"
-echo "Frames kept due to normal TI threshold: $count_normal_threshold"
-echo "Frames kept due to cumulative TI threshold: $count_cumsum_threshold"
-echo "Cumsum multiplier set to ${maxcum_multiplier}"
-echo "TI threshold multiplier set to ${threshold_multiplier}"
-echo "TI threshold was $threshold"
+SUMMARY_FILE="$PICTURE_OUTPUT_SUBDIR_MAIN/summary.txt"
+
+{
+  echo ""
+  echo "=== Summary ==="
+  echo "Original number of frames: $original_frames"
+  echo "Recreated frames in Left video: $recreated_frames_L"
+  echo "Recreated frames in Right video: $recreated_frames_R"
+  echo "Frames kept due to both normal TI threshold exceeded: $count_normal_threshold"
+  echo "Frames kept due to normal TI threshold (Left): $count_normal_threshold_L"
+  echo "Frames kept due to normal TI threshold (Right): $count_normal_threshold_R"
+  echo "Frames kept due to both cumsum TI threshold exceeded: $count_cumsum_threshold"
+  echo "Frames kept due to cumulative TI threshold (Left): $count_cumsum_threshold_L"
+  echo "Frames kept due to cumulative TI threshold (Right): $count_cumsum_threshold_R"
+  echo "Cumsum multiplier set to ${maxcum_multiplier}"
+  echo "TI threshold multiplier set to ${threshold_multiplier}"
+  echo "TI threshold was $threshold"
+} | tee "$SUMMARY_FILE"

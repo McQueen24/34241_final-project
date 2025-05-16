@@ -37,8 +37,8 @@ get_avg_ti() {
 }
 
 # Define input and output file 
-INPUT_FILE_L="video__2025-04-24__15-14-57__CAMB_3s.h265"
-INPUT_FILE_R="video__2025-04-24__15-14-57__CAMC_3s.h265"
+INPUT_FILE_L="CAMB.h265"
+INPUT_FILE_R="CAMC.h265"
 INPUT_DIR="sample_data/Lawnmower_Pattern"
 INPUT_PATH_L="$INPUT_DIR/$INPUT_FILE_L"
 INPUT_PATH_R="$INPUT_DIR/$INPUT_FILE_R"
@@ -48,7 +48,7 @@ OUTPUT_PATH_PICS_L="${INPUT_PATH_L}_frames_Q2"
 OUTPUT_PATH_PICS_R="${INPUT_PATH_R}_frames_Q2"
 mkdir -p "$OUTPUT_PATH_PICS_L" "$OUTPUT_PATH_PICS_R"
 
- Check if frames already exist
+# Check if frames already exist
 if ls "$OUTPUT_PATH_PICS_L"/frame*.jpg 1> /dev/null 2>&1; then
   echo "✅ Frames already extracted in '$OUTPUT_PATH_PICS_L'. Skipping extraction."
 else
@@ -81,7 +81,7 @@ echo "📏 Combined average threshold after multiplier: $threshold"
 #read -p "Press enter to continue"
 
 # Check if cumulative TI exceeds x times threshold
-maxcum_multiplier="3"
+maxcum_multiplier="5"
 maxcum=$(echo "$threshold * $maxcum_multiplier" | bc)
 count_normal_threshold=0
 count_normal_threshold_L=0
@@ -97,6 +97,7 @@ frame_pattern="frame%04d.jpg"
 OUTPUT_BASE_DIR="output_dir/algo4"
 mkdir -p "$OUTPUT_BASE_DIR" # Ensure the output directory exists
 
+
 # Generate timestamp and subfolder
 TIMESTAMP=$(date +"%Y-%m-%d__%H-%M-%S")
 PICTURE_OUTPUT_SUBDIR_MAIN="${OUTPUT_BASE_DIR}/${INPUT_FILE_L}__threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold"
@@ -104,6 +105,10 @@ PICTURE_OUTPUT_SUBDIR_L="${PICTURE_OUTPUT_SUBDIR_MAIN}/L"
 PICTURE_OUTPUT_SUBDIR_R="${PICTURE_OUTPUT_SUBDIR_MAIN}/R"
 rm -rf "$PICTURE_OUTPUT_SUBDIR_L" "$PICTURE_OUTPUT_SUBDIR_R"
 mkdir -p "$PICTURE_OUTPUT_SUBDIR_L" "$PICTURE_OUTPUT_SUBDIR_R"
+
+CSV_OUTPUT_DIR="$OUTPUT_BASE_DIR/csv_output_dir"
+mkdir -p "$CSV_OUTPUT_DIR"
+CSV_FILE="$CSV_OUTPUT_DIR/${INPUT_FILE_L}__threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold.csv"
 
 # Get sorted list of frame numbers
 frame_numbers=($(ls "$frame_dir_L"/frame*.jpg | sed -E 's/.*frame([0-9]+)\.jpg/\1/' | sort -n))
@@ -229,6 +234,8 @@ recreated_frames_R=$(ls "$PICTURE_OUTPUT_SUBDIR_R"/frame*.jpg | wc -l)
 
 SUMMARY_FILE="$PICTURE_OUTPUT_SUBDIR_MAIN/summary.txt"
 
+
+# Print summary once to console and save to summary.txt
 {
   echo ""
   echo "=== Summary ==="
@@ -245,3 +252,20 @@ SUMMARY_FILE="$PICTURE_OUTPUT_SUBDIR_MAIN/summary.txt"
   echo "TI threshold multiplier set to ${threshold_multiplier}"
   echo "TI threshold was $threshold"
 } | tee "$SUMMARY_FILE"
+
+# Create CSV summary file separately (no console output)
+{
+  echo "Description,Value"
+  echo "Original number of frames,$original_frames"
+  echo "Recreated frames in Left video,$recreated_frames_L"
+  echo "Recreated frames in Right video,$recreated_frames_R"
+  echo "Frames kept due to both normal TI threshold exceeded,$count_normal_threshold"
+  echo "Frames kept due to normal TI threshold (Left),$count_normal_threshold_L"
+  echo "Frames kept due to normal TI threshold (Right),$count_normal_threshold_R"
+  echo "Frames kept due to both cumsum TI threshold exceeded,$count_cumsum_threshold"
+  echo "Frames kept due to cumulative TI threshold (Left),$count_cumsum_threshold_L"
+  echo "Frames kept due to cumulative TI threshold (Right),$count_cumsum_threshold_R"
+  echo "Cumsum multiplier set,$maxcum_multiplier"
+  echo "TI threshold multiplier set,$threshold_multiplier"
+  echo "TI threshold,$threshold"
+} > "$CSV_FILE"

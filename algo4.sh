@@ -33,16 +33,16 @@ INPUT_PATH_L="$INPUT_DIR/$INPUT_FILE_L"
 INPUT_PATH_R="$INPUT_DIR/$INPUT_FILE_R"
 RESOLUTION="1920x1200"
 
-OUTPUT_PATH_PICS_L="${INPUT_PATH_L}_frames"
-OUTPUT_PATH_PICS_R="${INPUT_PATH_R}_frames"
+OUTPUT_PATH_PICS_L="${INPUT_PATH_L}_frames_Q2"
+OUTPUT_PATH_PICS_R="${INPUT_PATH_R}_frames_Q2"
 mkdir -p "$OUTPUT_PATH_PICS_L" "$OUTPUT_PATH_PICS_R"
 
-# Check if frames already exist
+ Check if frames already exist
 if ls "$OUTPUT_PATH_PICS_L"/frame*.jpg 1> /dev/null 2>&1; then
   echo "✅ Frames already extracted in '$OUTPUT_PATH_PICS_L'. Skipping extraction."
 else
   echo "🎞️ Extracting frames from video..."
-  ffmpeg -i "$INPUT_PATH_L" -qscale:v 2 "$OUTPUT_PATH_PICS_L/frame%04d.jpg"
+  ffmpeg -i "$INPUT_PATH_L" -qscale:v 31 "$OUTPUT_PATH_PICS_L/frame%04d.jpg"
 fi
 
 
@@ -50,9 +50,10 @@ if ls "$OUTPUT_PATH_PICS_R"/frame*.jpg 1> /dev/null 2>&1; then
   echo "✅ Frames already extracted in '$OUTPUT_PATH_PICS_R'. Skipping extraction."
 else
   echo "🎞️ Extracting frames from right video..."
-  ffmpeg -i "$INPUT_PATH_R" -qscale:v 2 "$OUTPUT_PATH_PICS_R/frame%04d.jpg"
+  ffmpeg -i "$INPUT_PATH_R" -qscale:v 31 "$OUTPUT_PATH_PICS_R/frame%04d.jpg"
 fi
 
+#read -p "Press enter to continue"
 echo "Finding average TI for full videos..."
 
 avg_ti_L=$(get_avg_ti "$INPUT_PATH_L")
@@ -191,8 +192,8 @@ rm -rf "$temp_base_L"
 rm -rf "$temp_base_R"
 
 echo "Generating recreated video..."
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.h265"
-ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_R"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_R.h265"
+ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_L"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_L.mp4"
+ffmpeg -y -pattern_type glob -i "$PICTURE_OUTPUT_SUBDIR_R"'/*.jpg' -c:v libx265 -r 24 "$OUTPUT_BASE_DIR/recreated_video_threshold=${threshold}_maxcum=${maxcum_multiplier}*threshold_R.mp4"
 
 # Count original and recreated frames
 original_frames=$(ls "$frame_dir_L"/frame*.jpg | wc -l)
